@@ -1,21 +1,49 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { toast } from 'react-toastify';
 import ApperIcon from '@/components/ApperIcon';
 import Button from '@/components/atoms/Button';
 import Input from '@/components/atoms/Input';
+import FilterDropdown from '@/components/molecules/FilterDropdown';
 import { generateRemiseQRCode } from '@/utils/qrCodeGenerator';
 import remiseService from '@/services/api/remiseService';
+import articleService from '@/services/api/articleService';
 
 const RemiseForm = ({ onSuccess }) => {
   const [formData, setFormData] = useState({
     agent: '',
-    materiel: [''],
+    materiel: [null],
     commentaires: '',
     dateRetourPrevue: ''
   });
   const [loading, setLoading] = useState(false);
   const [qrCode, setQrCode] = useState(null);
+  const [stockItems, setStockItems] = useState([]);
+  const [loadingStock, setLoadingStock] = useState(true);
+useEffect(() => {
+    const fetchStockItems = async () => {
+      try {
+        setLoadingStock(true);
+        const articles = await articleService.getAll();
+        // Filter to only available items and format for dropdown
+        const availableItems = articles
+          .filter(item => item.quantiteDisponible > 0)
+          .map(item => ({
+            value: item.Id,
+            label: `${item.nom} (Disponible: ${item.quantiteDisponible})`,
+            item: item
+          }));
+        setStockItems(availableItems);
+      } catch (error) {
+        toast.error('Erreur lors du chargement du stock');
+        console.error('Error loading stock:', error);
+      } finally {
+        setLoadingStock(false);
+      }
+    };
+
+    fetchStockItems();
+  }, []);
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
@@ -24,19 +52,19 @@ const RemiseForm = ({ onSuccess }) => {
     }));
   };
 
-  const handleMaterielChange = (index, value) => {
+const handleMaterielChange = (index, selectedOption) => {
     const newMateriel = [...formData.materiel];
-    newMateriel[index] = value;
+    newMateriel[index] = selectedOption;
     setFormData(prev => ({
       ...prev,
       materiel: newMateriel
     }));
   };
 
-  const addMaterielField = () => {
+const addMaterielField = () => {
     setFormData(prev => ({
       ...prev,
-      materiel: [...prev.materiel, '']
+      materiel: [...prev.materiel, null]
     }));
   };
 
@@ -50,18 +78,22 @@ const RemiseForm = ({ onSuccess }) => {
     }
   };
 
-  const handleSubmit = async (e) => {
+const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!formData.agent || formData.materiel.some(m => !m.trim())) {
+    if (!formData.agent || formData.materiel.some(m => !m)) {
       toast.error('Veuillez remplir tous les champs obligatoires');
       return;
     }
 
-    try {
+try {
       setLoading(true);
       
-      const materielFiltered = formData.materiel.filter(m => m.trim());
+      // Convert selected items to material names for storage
+      const materielFiltered = formData.materiel
+        .filter(m => m && m.item)
+        .map(m => m.item.nom);
+      
       const remiseData = {
         ...formData,
         materiel: materielFiltered,
@@ -90,10 +122,10 @@ const RemiseForm = ({ onSuccess }) => {
     }
   };
 
-  const resetForm = () => {
+const resetForm = () => {
     setFormData({
       agent: '',
-      materiel: [''],
+      materiel: [null],
       commentaires: '',
       dateRetourPrevue: ''
     });
@@ -159,45 +191,63 @@ const RemiseForm = ({ onSuccess }) => {
             required
           />
 
-          <div>
+<div>
             <label className="block text-sm font-semibold text-gray-700 mb-3">
               Matériel remis
             </label>
-            <div className="space-y-3">
-              {formData.materiel.map((item, index) => (
-                <div key={index} className="flex gap-2">
-                  <div className="flex-1">
-                    <Input
-                      icon="Package"
-                      value={item}
-                      onChange={(e) => handleMaterielChange(index, e.target.value)}
-                      placeholder={`Article ${index + 1}`}
-                      required
-                    />
-                  </div>
-                  {formData.materiel.length > 1 && (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="md"
-                      icon="X"
-                      onClick={() => removeMaterielField(index)}
-                      className="px-3"
-                    />
-                  )}
+            {loadingStock ? (
+              <div className="flex items-center justify-center py-8">
+                <div className="flex items-center gap-3 text-gray-500">
+                  <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+                  <span>Chargement du stock...</span>
                 </div>
-              ))}
-            </div>
-            
-            <Button
-              type="button"
-              variant="ghost"
-              icon="Plus"
-              onClick={addMaterielField}
-              className="mt-3"
-            >
-              Ajouter un article
-            </Button>
+              </div>
+            ) : (
+              <>
+                <div className="space-y-3">
+                  {formData.materiel.map((item, index) => (
+                    <div key={index} className="flex gap-2">
+                      <div className="flex-1">
+                        <FilterDropdown
+                          options={stockItems}
+                          value={item}
+                          onChange={(selectedOption) => handleMaterielChange(index, selectedOption)}
+                          placeholder={`Sélectionner l'article ${index + 1}`}
+                          icon="Package"
+                        />
+                      </div>
+                      {formData.materiel.length > 1 && (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="md"
+                          icon="X"
+                          onClick={() => removeMaterielField(index)}
+                          className="px-3"
+                        />
+                      )}
+                    </div>
+                  ))}
+                </div>
+                
+                <Button
+                  type="button"
+                  variant="ghost"
+                  icon="Plus"
+                  onClick={addMaterielField}
+                  className="mt-3"
+                  disabled={stockItems.length === 0}
+                >
+                  Ajouter un article
+                </Button>
+                
+                {stockItems.length === 0 && (
+                  <p className="text-sm text-gray-500 mt-2">
+                    Aucun article disponible en stock
+                  </p>
+                )}
+              </>
+            )}
           </div>
 
           <Input
