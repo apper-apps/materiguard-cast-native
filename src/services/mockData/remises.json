@@ -1,0 +1,47 @@
+[
+  {
+    "Id": 1,
+    "agent": "Jean Dupont",
+    "materiel": ["Talkie-walkie Motorola DP1400", "Casque de sécurité blanc", "Gilet de sécurité haute visibilité"],
+    "date": "2024-01-15T08:30:00.000Z",
+    "signature": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjEwMCI+PC9zdmc+",
+    "qrCode": "MGT-001-20240115",
+    "status": "Actif",
+    "dateRetourPrevue": "2024-02-15T17:00:00.000Z",
+    "commentaires": "Équipement complet pour mission de surveillance nocturne"
+  },
+  {
+    "Id": 2,
+    "agent": "Marie Martin",
+    "materiel": ["Chaussures de sécurité S3", "Lampe torche LED tactique"],
+    "date": "2024-01-16T09:15:00.000Z",
+    "signature": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjEwMCI+PC9zdmc+",
+    "qrCode": "MGT-002-20240116",
+    "status": "Retourné",
+    "dateRetourPrevue": "2024-01-30T17:00:00.000Z",
+    "dateRetourEffective": "2024-01-28T16:30:00.000Z",
+    "commentaires": "Mission courte terminée plus tôt que prévu"
+  },
+  {
+    "Id": 3,
+    "agent": "Pierre Durand",
+    "materiel": ["Détecteur de métaux portable", "Badge porte-nom magnétique"],
+    "date": "2024-01-17T10:00:00.000Z",
+    "signature": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjEwMCI+PC9zdmc+",
+    "qrCode": "MGT-003-20240117",
+    "status": "En retard",
+    "dateRetourPrevue": "2024-01-31T17:00:00.000Z",
+    "commentaires": "Contrôle sécurité événement spécial"
+  },
+  {
+    "Id": 4,
+    "agent": "Sophie Bernard",
+    "materiel": ["Gants de protection nitrile", "Pantalon de travail noir"],
+    "date": "2024-01-18T07:45:00.000Z",
+    "signature": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjEwMCI+PC9zdmc+",
+    "qrCode": "MGT-004-20240118",
+    "status": "Actif",
+    "dateRetourPrevue": "2024-02-18T17:00:00.000Z",
+    "commentaires": "Mission longue durée - site industriel"
+  }
+]

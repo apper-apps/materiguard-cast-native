@@ -1,0 +1,57 @@
+[
+  {
+    "Id": 1,
+    "articleId": 1,
+    "agent": "Jean Dupont",
+    "quantite": 1,
+    "dateEmprunt": "2024-01-15T08:30:00.000Z",
+    "dateRetourPrevue": "2024-02-15T17:00:00.000Z",
+    "dateRetourEffective": null,
+    "status": "En cours",
+    "commentaires": "Mission surveillance nocturne"
+  },
+  {
+    "Id": 2,
+    "articleId": 2,
+    "agent": "Jean Dupont",
+    "quantite": 1,
+    "dateEmprunt": "2024-01-15T08:30:00.000Z",
+    "dateRetourPrevue": "2024-02-15T17:00:00.000Z",
+    "dateRetourEffective": null,
+    "status": "En cours",
+    "commentaires": "Mission surveillance nocturne"
+  },
+  {
+    "Id": 3,
+    "articleId": 4,
+    "agent": "Marie Martin",
+    "quantite": 1,
+    "dateEmprunt": "2024-01-16T09:15:00.000Z",
+    "dateRetourPrevue": "2024-01-30T17:00:00.000Z",
+    "dateRetourEffective": "2024-01-28T16:30:00.000Z",
+    "status": "Retourné",
+    "commentaires": "Mission courte"
+  },
+  {
+    "Id": 4,
+    "articleId": 8,
+    "agent": "Pierre Durand",
+    "quantite": 1,
+    "dateEmprunt": "2024-01-17T10:00:00.000Z",
+    "dateRetourPrevue": "2024-01-31T17:00:00.000Z",
+    "dateRetourEffective": null,
+    "status": "En retard",
+    "commentaires": "Contrôle sécurité événement"
+  },
+  {
+    "Id": 5,
+    "articleId": 7,
+    "agent": "Sophie Bernard",
+    "quantite": 2,
+    "dateEmprunt": "2024-01-18T07:45:00.000Z",
+    "dateRetourPrevue": "2024-02-18T17:00:00.000Z",
+    "dateRetourEffective": null,
+    "status": "En cours",
+    "commentaires": "Mission longue durée"
+  }
+]
