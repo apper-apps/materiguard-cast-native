@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 import { motion } from 'framer-motion';
 import { toast } from 'react-toastify';
 import Header from '@/components/organisms/Header';
@@ -8,8 +9,8 @@ import Input from '@/components/atoms/Input';
 import FilterDropdown from '@/components/molecules/FilterDropdown';
 import articleService from '@/services/api/articleService';
 import empruntService from '@/services/api/empruntService';
-
 const Emprunts = () => {
+  const { user } = useAuth();
   const [showAddForm, setShowAddForm] = useState(false);
   const [articles, setArticles] = useState([]);
   const [formData, setFormData] = useState({
@@ -81,14 +82,16 @@ const Emprunts = () => {
     label: `${article.nom} (${article.quantiteDisponible} disponibles)`
   }));
 
-  const headerActions = [
-    {
+const headerActions = [];
+  
+  if (user.role === 'Administrator' || user.role === 'Manager') {
+    headerActions.push({
       label: 'Nouvel emprunt',
       icon: 'Plus',
       onClick: handleShowForm,
       variant: 'primary'
-    }
-  ];
+    });
+  }
 
   return (
     <div className="h-full">
@@ -99,7 +102,7 @@ const Emprunts = () => {
       />
       
       <div className="p-6 space-y-6">
-        {showAddForm && (
+{showAddForm && (user.role === 'Administrator' || user.role === 'Manager') && (
           <motion.div
             className="card max-w-2xl mx-auto"
             initial={{ opacity: 0, y: -20 }}

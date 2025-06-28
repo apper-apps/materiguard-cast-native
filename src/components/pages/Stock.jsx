@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 import { motion } from 'framer-motion';
 import { toast } from 'react-toastify';
 import Header from '@/components/organisms/Header';
@@ -8,8 +9,8 @@ import Input from '@/components/atoms/Input';
 import FilterDropdown from '@/components/molecules/FilterDropdown';
 import articleService from '@/services/api/articleService';
 import exportService from '@/services/api/exportService';
-
 const Stock = () => {
+  const { user } = useAuth();
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingArticle, setEditingArticle] = useState(null);
   const [formData, setFormData] = useState({
@@ -107,26 +108,33 @@ const Stock = () => {
     }
   };
 
-  const headerActions = [
-    {
-      label: 'Export Excel',
-      icon: 'FileSpreadsheet',
-      onClick: handleExportExcel,
-      variant: 'outline'
-    },
-    {
-      label: 'Export PDF',
-      icon: 'FileText',
-      onClick: handleExportPDF,
-      variant: 'outline'
-    },
-    {
+const headerActions = [];
+  
+  if (user.role === 'Administrator' || user.role === 'Manager') {
+    headerActions.push(
+      {
+        label: 'Export Excel',
+        icon: 'FileSpreadsheet',
+        onClick: handleExportExcel,
+        variant: 'outline'
+      },
+      {
+        label: 'Export PDF',
+        icon: 'FileText',
+        onClick: handleExportPDF,
+        variant: 'outline'
+      }
+    );
+  }
+  
+  if (user.role === 'Administrator') {
+    headerActions.push({
       label: 'Ajouter un article',
       icon: 'Plus',
       onClick: () => setShowAddForm(true),
       variant: 'primary'
-    }
-  ];
+    });
+  }
   return (
     <div className="h-full">
       <Header 
@@ -136,7 +144,7 @@ const Stock = () => {
       />
       
       <div className="p-6 space-y-6">
-        {showAddForm && (
+{showAddForm && user.role === 'Administrator' && (
           <motion.div
             className="card max-w-2xl mx-auto"
             initial={{ opacity: 0, y: -20 }}

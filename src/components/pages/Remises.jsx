@@ -1,10 +1,11 @@
 import { useState } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 import { motion } from 'framer-motion';
 import Header from '@/components/organisms/Header';
 import RemiseForm from '@/components/organisms/RemiseForm';
 import HistoriqueTable from '@/components/organisms/HistoriqueTable';
-
 const Remises = () => {
+  const { user } = useAuth();
   const [showForm, setShowForm] = useState(false);
 
   const handleCreateRemise = () => {
@@ -15,14 +16,16 @@ const Remises = () => {
     setShowForm(false);
   };
 
-  const headerActions = [
-    {
+const headerActions = [];
+  
+  if (user.role === 'Administrator' || user.role === 'Manager') {
+    headerActions.push({
       label: 'Nouvelle remise',
       icon: 'Plus',
       onClick: handleCreateRemise,
       variant: 'primary'
-    }
-  ];
+    });
+  }
 
   return (
     <div className="h-full">
@@ -33,7 +36,7 @@ const Remises = () => {
       />
       
       <div className="p-6">
-        {showForm ? (
+{showForm && (user.role === 'Administrator' || user.role === 'Manager') ? (
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}

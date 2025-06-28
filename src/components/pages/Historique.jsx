@@ -1,7 +1,8 @@
+import { useAuth } from '@/contexts/AuthContext';
 import Header from '@/components/organisms/Header';
 import HistoriqueTable from '@/components/organisms/HistoriqueTable';
-
 const Historique = () => {
+  const { user } = useAuth();
   return (
     <div className="h-full">
       <Header 

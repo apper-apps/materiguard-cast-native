@@ -1,15 +1,18 @@
 import { NavLink } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 import { motion } from 'framer-motion';
 import ApperIcon from '@/components/ApperIcon';
-
 const Sidebar = () => {
-  const navItems = [
-    { path: '/', icon: 'LayoutDashboard', label: 'Dashboard' },
-    { path: '/remises', icon: 'FileText', label: 'Remises' },
-    { path: '/stock', icon: 'Package', label: 'Stock' },
-    { path: '/emprunts', icon: 'Calendar', label: 'Emprunts' },
-    { path: '/historique', icon: 'History', label: 'Historique' }
+  const { user } = useAuth();
+const allNavItems = [
+    { path: '/', icon: 'LayoutDashboard', label: 'Dashboard', roles: ['Administrator', 'Manager', 'User'] },
+    { path: '/remises', icon: 'FileText', label: 'Remises', roles: ['Administrator', 'Manager', 'User'] },
+    { path: '/stock', icon: 'Package', label: 'Stock', roles: ['Administrator', 'Manager', 'User'] },
+    { path: '/emprunts', icon: 'Calendar', label: 'Emprunts', roles: ['Administrator', 'Manager', 'User'] },
+    { path: '/historique', icon: 'History', label: 'Historique', roles: ['Administrator', 'Manager', 'User'] }
   ];
+
+  const navItems = allNavItems.filter(item => item.roles.includes(user.role));
 
   return (
     <motion.div

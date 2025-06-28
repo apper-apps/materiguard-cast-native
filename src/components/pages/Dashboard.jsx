@@ -1,10 +1,12 @@
 import { motion } from 'framer-motion';
+import { useAuth } from '@/contexts/AuthContext';
 import Header from '@/components/organisms/Header';
 import DashboardStats from '@/components/organisms/DashboardStats';
 import AlertsPanel from '@/components/organisms/AlertsPanel';
 import EmpruntTable from '@/components/organisms/EmpruntTable';
 
 const Dashboard = () => {
+  const { user } = useAuth();
   return (
     <div className="h-full">
       <Header 
