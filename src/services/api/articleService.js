@@ -88,7 +88,24 @@ class ArticleService {
       quantiteDisponible: newQuantity
     };
     
-    return { ...this.articles[index] };
+return { ...this.articles[index] };
+  }
+
+  async exportData() {
+    await this.delay();
+    return this.articles.map(article => ({
+      'ID': article.Id,
+      'Nom': article.nom,
+      'Catégorie': article.categorie,
+      'Quantité Total': article.quantiteTotal,
+      'Quantité Disponible': article.quantiteDisponible,
+      'Seuil Alerte': article.seuilAlerte,
+      'Marque': article.marque || '',
+      'Modèle': article.modele || '',
+      'Prix Unitaire': article.prixUnitaire ? `${article.prixUnitaire.toFixed(2)} €` : '',
+      'Statut': article.quantiteDisponible <= article.seuilAlerte ? 'Stock Faible' : 
+                article.quantiteDisponible === 0 ? 'Rupture' : 'Disponible'
+    }));
   }
 }
 

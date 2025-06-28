@@ -7,6 +7,7 @@ import Button from '@/components/atoms/Button';
 import Input from '@/components/atoms/Input';
 import FilterDropdown from '@/components/molecules/FilterDropdown';
 import articleService from '@/services/api/articleService';
+import exportService from '@/services/api/exportService';
 
 const Stock = () => {
   const [showAddForm, setShowAddForm] = useState(false);
@@ -84,9 +85,41 @@ const Stock = () => {
       prixUnitaire: article.prixUnitaire?.toString() || ''
     });
     setShowAddForm(true);
+};
+
+  const handleExportExcel = async () => {
+    try {
+      toast.info('Export Excel en cours...');
+      const result = await exportService.exportToExcel();
+      toast.success(`Export Excel réussi: ${result.filename}`);
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
+
+  const handleExportPDF = async () => {
+    try {
+      toast.info('Export PDF en cours...');
+      const result = await exportService.exportToPDF();
+      toast.success(`Export PDF réussi: ${result.filename}`);
+    } catch (error) {
+      toast.error(error.message);
+    }
   };
 
   const headerActions = [
+    {
+      label: 'Export Excel',
+      icon: 'FileSpreadsheet',
+      onClick: handleExportExcel,
+      variant: 'outline'
+    },
+    {
+      label: 'Export PDF',
+      icon: 'FileText',
+      onClick: handleExportPDF,
+      variant: 'outline'
+    },
     {
       label: 'Ajouter un article',
       icon: 'Plus',
@@ -94,7 +127,6 @@ const Stock = () => {
       variant: 'primary'
     }
   ];
-
   return (
     <div className="h-full">
       <Header 
