@@ -1,5 +1,5 @@
 import { Navigate } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/App';
 import { toast } from 'react-toastify';
 
 const ProtectedRoute = ({ children, requiredRole, requiredPermission }) => {

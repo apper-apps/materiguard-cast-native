@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/App';
 import { motion } from 'framer-motion';
 import { toast } from 'react-toastify';
 import Header from '@/components/organisms/Header';

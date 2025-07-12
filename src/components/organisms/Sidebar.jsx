@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/App';
 import { motion } from 'framer-motion';
 import ApperIcon from '@/components/ApperIcon';
 const Sidebar = () => {
