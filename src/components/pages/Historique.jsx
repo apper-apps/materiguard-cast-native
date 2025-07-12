@@ -1,4 +1,4 @@
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/App';
 import Header from '@/components/organisms/Header';
 import HistoriqueTable from '@/components/organisms/HistoriqueTable';
 const Historique = () => {
