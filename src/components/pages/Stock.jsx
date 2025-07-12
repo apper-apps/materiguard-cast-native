@@ -1,16 +1,16 @@
-import { useState } from 'react';
-import { useAuth } from '@/App';
-import { motion } from 'framer-motion';
-import { toast } from 'react-toastify';
-import Header from '@/components/organisms/Header';
-import StockTable from '@/components/organisms/StockTable';
-import Button from '@/components/atoms/Button';
-import Input from '@/components/atoms/Input';
-import FilterDropdown from '@/components/molecules/FilterDropdown';
-import articleService from '@/services/api/articleService';
-import exportService from '@/services/api/exportService';
+import React, { useContext, useState } from "react";
+import { motion } from "framer-motion";
+import { toast } from "react-toastify";
+import { AuthContext } from "@/App";
+import StockTable from "@/components/organisms/StockTable";
+import Header from "@/components/organisms/Header";
+import Button from "@/components/atoms/Button";
+import Input from "@/components/atoms/Input";
+import FilterDropdown from "@/components/molecules/FilterDropdown";
+import exportService from "@/services/api/exportService";
+import articleService from "@/services/api/articleService";
 const Stock = () => {
-  const { user } = useAuth();
+  const { user } = useContext(AuthContext);
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingArticle, setEditingArticle] = useState(null);
   const [formData, setFormData] = useState({
