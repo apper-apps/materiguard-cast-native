@@ -1,111 +1,222 @@
-import articlesData from '@/services/mockData/articles.json';
+import { toast } from 'react-toastify';
 
 class ArticleService {
   constructor() {
-    this.articles = [...articlesData];
+    this.tableName = 'article';
   }
 
-  async delay() {
-    return new Promise(resolve => setTimeout(resolve, Math.random() * 300 + 200));
+  getApperClient() {
+    const { ApperClient } = window.ApperSDK;
+    return new ApperClient({
+      apperProjectId: import.meta.env.VITE_APPER_PROJECT_ID,
+      apperPublicKey: import.meta.env.VITE_APPER_PUBLIC_KEY
+    });
   }
 
   async getAll() {
-    await this.delay();
-    return [...this.articles];
+    try {
+      const apperClient = this.getApperClient();
+      const params = {
+        fields: [
+          { field: { Name: "Name" } },
+          { field: { Name: "nom" } },
+          { field: { Name: "categorie" } },
+          { field: { Name: "quantite_total" } },
+          { field: { Name: "quantite_disponible" } },
+          { field: { Name: "seuil_alerte" } },
+          { field: { Name: "image" } },
+          { field: { Name: "description" } },
+          { field: { Name: "marque" } },
+          { field: { Name: "modele" } },
+          { field: { Name: "prix_unitaire" } }
+        ]
+      };
+
+      const response = await apperClient.fetchRecords(this.tableName, params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        toast.error(response.message);
+        return [];
+      }
+
+      return response.data || [];
+    } catch (error) {
+      console.error("Error fetching articles:", error);
+      toast.error("Erreur lors du chargement des articles");
+      return [];
+    }
   }
 
   async getById(id) {
-    await this.delay();
-    const article = this.articles.find(item => item.Id === parseInt(id));
-    if (!article) {
-      throw new Error(`Article avec l'ID ${id} introuvable`);
+    try {
+      const apperClient = this.getApperClient();
+      const params = {
+        fields: [
+          { field: { Name: "Name" } },
+          { field: { Name: "nom" } },
+          { field: { Name: "categorie" } },
+          { field: { Name: "quantite_total" } },
+          { field: { Name: "quantite_disponible" } },
+          { field: { Name: "seuil_alerte" } },
+          { field: { Name: "image" } },
+          { field: { Name: "description" } },
+          { field: { Name: "marque" } },
+          { field: { Name: "modele" } },
+          { field: { Name: "prix_unitaire" } }
+        ]
+      };
+
+      const response = await apperClient.getRecordById(this.tableName, parseInt(id), params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        toast.error(response.message);
+        return null;
+      }
+
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching article with ID ${id}:`, error);
+      toast.error("Erreur lors du chargement de l'article");
+      return null;
     }
-    return { ...article };
   }
 
   async create(articleData) {
-    await this.delay();
-    const newId = Math.max(...this.articles.map(a => a.Id)) + 1;
-    const newArticle = {
-      Id: newId,
-      ...articleData,
-      quantiteDisponible: articleData.quantiteTotal
-    };
-    this.articles.push(newArticle);
-    return { ...newArticle };
+    try {
+      const apperClient = this.getApperClient();
+      const params = {
+        records: [{
+          Name: articleData.Name || articleData.nom,
+          nom: articleData.nom,
+          categorie: articleData.categorie,
+          quantite_total: parseInt(articleData.quantite_total || articleData.quantiteTotal),
+          quantite_disponible: parseInt(articleData.quantite_disponible || articleData.quantiteTotal),
+          seuil_alerte: parseInt(articleData.seuil_alerte || articleData.seuilAlerte),
+          image: articleData.image || "",
+          description: articleData.description || "",
+          marque: articleData.marque || "",
+          modele: articleData.modele || "",
+          prix_unitaire: parseFloat(articleData.prix_unitaire || articleData.prixUnitaire || 0)
+        }]
+      };
+
+      const response = await apperClient.createRecord(this.tableName, params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        toast.error(response.message);
+        return null;
+      }
+
+      if (response.results) {
+        const successfulRecords = response.results.filter(result => result.success);
+        const failedRecords = response.results.filter(result => !result.success);
+        
+        if (failedRecords.length > 0) {
+          console.error(`Failed to create ${failedRecords.length} records:${JSON.stringify(failedRecords)}`);
+          failedRecords.forEach(record => {
+            if (record.message) toast.error(record.message);
+          });
+        }
+        
+        return successfulRecords.length > 0 ? successfulRecords[0].data : null;
+      }
+    } catch (error) {
+      console.error("Error creating article:", error);
+      toast.error("Erreur lors de la création de l'article");
+      return null;
+    }
   }
 
   async update(id, updates) {
-    await this.delay();
-    const index = this.articles.findIndex(item => item.Id === parseInt(id));
-    if (index === -1) {
-      throw new Error(`Article avec l'ID ${id} introuvable`);
+    try {
+      const apperClient = this.getApperClient();
+      const updateData = {
+        Id: parseInt(id)
+      };
+
+      // Only include updateable fields
+      if (updates.Name !== undefined) updateData.Name = updates.Name;
+      if (updates.nom !== undefined) updateData.nom = updates.nom;
+      if (updates.categorie !== undefined) updateData.categorie = updates.categorie;
+      if (updates.quantite_total !== undefined) updateData.quantite_total = parseInt(updates.quantite_total);
+      if (updates.quantite_disponible !== undefined) updateData.quantite_disponible = parseInt(updates.quantite_disponible);
+      if (updates.seuil_alerte !== undefined) updateData.seuil_alerte = parseInt(updates.seuil_alerte);
+      if (updates.image !== undefined) updateData.image = updates.image;
+      if (updates.description !== undefined) updateData.description = updates.description;
+      if (updates.marque !== undefined) updateData.marque = updates.marque;
+      if (updates.modele !== undefined) updateData.modele = updates.modele;
+      if (updates.prix_unitaire !== undefined) updateData.prix_unitaire = parseFloat(updates.prix_unitaire);
+
+      const params = {
+        records: [updateData]
+      };
+
+      const response = await apperClient.updateRecord(this.tableName, params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        toast.error(response.message);
+        return null;
+      }
+
+      if (response.results) {
+        const successfulUpdates = response.results.filter(result => result.success);
+        const failedUpdates = response.results.filter(result => !result.success);
+        
+        if (failedUpdates.length > 0) {
+          console.error(`Failed to update ${failedUpdates.length} records:${JSON.stringify(failedUpdates)}`);
+          failedUpdates.forEach(record => {
+            if (record.message) toast.error(record.message);
+          });
+        }
+        
+        return successfulUpdates.length > 0 ? successfulUpdates[0].data : null;
+      }
+    } catch (error) {
+      console.error("Error updating article:", error);
+      toast.error("Erreur lors de la mise à jour de l'article");
+      return null;
     }
-    this.articles[index] = { ...this.articles[index], ...updates };
-    return { ...this.articles[index] };
   }
 
-  async delete(id) {
-    await this.delay();
-    const index = this.articles.findIndex(item => item.Id === parseInt(id));
-    if (index === -1) {
-      throw new Error(`Article avec l'ID ${id} introuvable`);
-    }
-    const deletedArticle = this.articles.splice(index, 1)[0];
-    return { ...deletedArticle };
-  }
+  async delete(recordIds) {
+    try {
+      const apperClient = this.getApperClient();
+      const ids = Array.isArray(recordIds) ? recordIds : [recordIds];
+      
+      const params = {
+        RecordIds: ids.map(id => parseInt(id))
+      };
 
-  async getByCategory(category) {
-    await this.delay();
-    return this.articles.filter(article => article.categorie === category);
-  }
+      const response = await apperClient.deleteRecord(this.tableName, params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        toast.error(response.message);
+        return false;
+      }
 
-  async getLowStock() {
-    await this.delay();
-    return this.articles.filter(article => article.quantiteDisponible <= article.seuilAlerte);
-  }
-
-  async updateStock(id, quantityChange) {
-    await this.delay();
-    const index = this.articles.findIndex(item => item.Id === parseInt(id));
-    if (index === -1) {
-      throw new Error(`Article avec l'ID ${id} introuvable`);
+      if (response.results) {
+        const successfulDeletions = response.results.filter(result => result.success);
+        const failedDeletions = response.results.filter(result => !result.success);
+        
+        if (failedDeletions.length > 0) {
+          console.error(`Failed to delete ${failedDeletions.length} records:${JSON.stringify(failedDeletions)}`);
+          failedDeletions.forEach(record => {
+            if (record.message) toast.error(record.message);
+          });
+        }
+        
+        return successfulDeletions.length === ids.length;
+      }
+    } catch (error) {
+      console.error("Error deleting articles:", error);
+      toast.error("Erreur lors de la suppression des articles");
+      return false;
     }
-    
-    const article = this.articles[index];
-    const newQuantity = article.quantiteDisponible + quantityChange;
-    
-    if (newQuantity < 0) {
-      throw new Error('Stock insuffisant');
-    }
-    
-    if (newQuantity > article.quantiteTotal) {
-      throw new Error('Quantité disponible ne peut pas dépasser le stock total');
-    }
-    
-    this.articles[index] = {
-      ...article,
-      quantiteDisponible: newQuantity
-    };
-    
-return { ...this.articles[index] };
-  }
-
-  async exportData() {
-    await this.delay();
-    return this.articles.map(article => ({
-      'ID': article.Id,
-      'Nom': article.nom,
-      'Catégorie': article.categorie,
-      'Quantité Total': article.quantiteTotal,
-      'Quantité Disponible': article.quantiteDisponible,
-      'Seuil Alerte': article.seuilAlerte,
-      'Marque': article.marque || '',
-      'Modèle': article.modele || '',
-      'Prix Unitaire': article.prixUnitaire ? `${article.prixUnitaire.toFixed(2)} €` : '',
-      'Statut': article.quantiteDisponible <= article.seuilAlerte ? 'Stock Faible' : 
-                article.quantiteDisponible === 0 ? 'Rupture' : 'Disponible'
-    }));
   }
 }
 

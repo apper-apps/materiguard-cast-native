@@ -47,20 +47,20 @@ const HistoriqueTable = () => {
   useEffect(() => {
     let filtered = remises;
 
-    // Filtrer par terme de recherche
+// Filtrer par terme de recherche
     if (searchTerm) {
-      filtered = filtered.filter(remise =>
-        remise.agent.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        remise.materiel.some(m => m.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        remise.qrCode.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+      filtered = filtered.filter(remise => {
+        const materielArray = Array.isArray(remise.materiel) ? remise.materiel : (remise.materiel ? remise.materiel.split(',') : []);
+        return remise.agent.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          materielArray.some(m => m.toLowerCase().includes(searchTerm.toLowerCase())) ||
+          (remise.qr_code || '').toLowerCase().includes(searchTerm.toLowerCase());
+      });
     }
-
-    // Filtrer par statut
+// Filtrer par statut
     if (statusFilter) {
       filtered = filtered.filter(remise => {
         if (statusFilter === 'En retard') {
-          return remise.status === 'Actif' && new Date(remise.dateRetourPrevue) < new Date();
+          return remise.status === 'Actif' && new Date(remise.date_retour_prevue) < new Date();
         }
         return remise.status === statusFilter;
       });
@@ -69,9 +69,9 @@ const HistoriqueTable = () => {
     setFilteredRemises(filtered);
   }, [remises, searchTerm, statusFilter]);
 
-  const getStatusBadge = (remise) => {
+const getStatusBadge = (remise) => {
     const now = new Date();
-    const dateRetour = new Date(remise.dateRetourPrevue);
+    const dateRetour = new Date(remise.date_retour_prevue);
     
     if (remise.status === 'Retourné') {
       return { variant: 'success', label: 'Retourné', icon: 'CheckCircle' };
@@ -167,15 +167,22 @@ const HistoriqueTable = () => {
                           <div className="text-sm font-medium text-gray-900">{remise.agent}</div>
                         </div>
                       </td>
-                      
-                      <td className="px-6 py-4">
+<td className="px-6 py-4">
                         <div className="text-sm text-gray-900">
-                          {remise.materiel.slice(0, 2).join(', ')}
-                          {remise.materiel.length > 2 && (
-                            <span className="text-gray-500">
-                              {' '}+{remise.materiel.length - 2} autre{remise.materiel.length > 3 ? 's' : ''}
-                            </span>
-                          )}
+                          {(() => {
+                            const materielArray = Array.isArray(remise.materiel) ? remise.materiel : (remise.materiel ? remise.materiel.split(',') : []);
+                            const displayMateriel = materielArray.slice(0, 2).join(', ');
+                            return (
+                              <>
+                                {displayMateriel}
+                                {materielArray.length > 2 && (
+                                  <span className="text-gray-500">
+                                    {' '}+{materielArray.length - 2} autre{materielArray.length > 3 ? 's' : ''}
+                                  </span>
+                                )}
+                              </>
+                            );
+                          })()}
                         </div>
                       </td>
                       
@@ -184,11 +191,10 @@ const HistoriqueTable = () => {
                           {format(new Date(remise.date), 'dd MMM yyyy HH:mm', { locale: fr })}
                         </div>
                       </td>
-                      
-                      <td className="px-6 py-4">
+<td className="px-6 py-4">
                         <div className="text-sm text-gray-900">
-                          {remise.dateRetourPrevue ? 
-                            format(new Date(remise.dateRetourPrevue), 'dd MMM yyyy', { locale: fr }) :
+                          {remise.date_retour_prevue ? 
+                            format(new Date(remise.date_retour_prevue), 'dd MMM yyyy', { locale: fr }) :
                             'Non définie'
                           }
                         </div>
@@ -200,10 +206,10 @@ const HistoriqueTable = () => {
                         </Badge>
                       </td>
                       
-                      <td className="px-6 py-4">
+<td className="px-6 py-4">
                         <div className="flex items-center">
                           <code className="px-2 py-1 text-xs bg-gray-100 rounded text-gray-800">
-                            {remise.qrCode}
+                            {remise.qr_code}
                           </code>
                         </div>
                       </td>

@@ -36,13 +36,13 @@ const DashboardStats = () => {
       const empruntsEnRetard = emprunts.filter(e => 
         e.status === 'En cours' && new Date(e.dateRetourPrevue) < now
       );
-      const remisesActives = remises.filter(r => r.status === 'Actif');
+const remisesActives = remises.filter(r => r.status === 'Actif');
       const articlesStockFaible = articles.filter(a => 
-        a.quantiteDisponible <= a.seuilAlerte
+        a.quantite_disponible <= a.seuil_alerte
       );
       
       const articlesDisponibles = articles.reduce((sum, article) => 
-        sum + article.quantiteDisponible, 0
+        sum + article.quantite_disponible, 0
       );
 
       setStats({

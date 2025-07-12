@@ -3,18 +3,17 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { useContext } from 'react';
 import { AuthContext } from '../../App';
-import ApperIcon from '@/components/ApperIcon';
 
-function Login() {
+function Signup() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { isInitialized } = useContext(AuthContext);
   
   useEffect(() => {
     if (isInitialized) {
-      // Show login UI in this component
+      // Show signup UI in this component
       const { ApperUI } = window.ApperSDK;
-      ApperUI.showLogin("#authentication");
+      ApperUI.showSignup("#authentication");
     }
   }, [isInitialized]);
   
@@ -27,33 +26,25 @@ function Login() {
           </div>
           <div className="flex flex-col gap-1 items-center justify-center">
             <div className="text-center text-lg xl:text-xl font-bold">
-              Se connecter à MatériGuard Pro
+              Créer un compte
             </div>
             <div className="text-center text-sm text-gray-500">
-              Bienvenue, veuillez vous connecter pour continuer
+              Veuillez créer un compte pour continuer
             </div>
           </div>
         </div>
         <div id="authentication" />
         <div className="text-center mt-4">
           <p className="text-sm text-gray-600">
-            Vous n'avez pas de compte?{' '}
-            <Link to="/signup" className="font-medium text-primary hover:text-primary/80">
-              S'inscrire
+            Vous avez déjà un compte?{' '}
+            <Link to="/login" className="font-medium text-primary hover:text-primary/80">
+              Se connecter
             </Link>
           </p>
-        </div>
-        
-        {/* Footer */}
-        <div className="text-center mt-8 text-gray-500 text-sm">
-          <div className="flex items-center justify-center space-x-2">
-            <ApperIcon name="Info" className="w-4 h-4" />
-            <span>Version 1.0.0 - Gestion sécurisée du matériel</span>
-          </div>
         </div>
       </div>
     </div>
   );
 }
 
-export default Login;
+export default Signup;

@@ -1,101 +1,226 @@
-import empruntsData from '@/services/mockData/emprunts.json';
+import { toast } from 'react-toastify';
 
 class EmpruntService {
   constructor() {
-    this.emprunts = [...empruntsData];
+    this.tableName = 'emprunt';
   }
 
-  async delay() {
-    return new Promise(resolve => setTimeout(resolve, Math.random() * 300 + 200));
+  getApperClient() {
+    const { ApperClient } = window.ApperSDK;
+    return new ApperClient({
+      apperProjectId: import.meta.env.VITE_APPER_PROJECT_ID,
+      apperPublicKey: import.meta.env.VITE_APPER_PUBLIC_KEY
+    });
   }
 
   async getAll() {
-    await this.delay();
-    return [...this.emprunts];
+    try {
+      const apperClient = this.getApperClient();
+      const params = {
+        fields: [
+          { field: { Name: "Name" } },
+          { field: { Name: "agent" } },
+          { field: { Name: "quantite" } },
+          { field: { Name: "date_emprunt" } },
+          { field: { Name: "date_retour_prevue" } },
+          { field: { Name: "date_retour_effective" } },
+          { field: { Name: "status" } },
+          { field: { Name: "commentaires" } },
+          { 
+            field: { name: "article_id" },
+            referenceField: { field: { Name: "nom" } }
+          }
+        ]
+      };
+
+      const response = await apperClient.fetchRecords(this.tableName, params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        toast.error(response.message);
+        return [];
+      }
+
+      return response.data || [];
+    } catch (error) {
+      console.error("Error fetching emprunts:", error);
+      toast.error("Erreur lors du chargement des emprunts");
+      return [];
+    }
   }
 
   async getById(id) {
-    await this.delay();
-    const emprunt = this.emprunts.find(item => item.Id === parseInt(id));
-    if (!emprunt) {
-      throw new Error(`Emprunt avec l'ID ${id} introuvable`);
+    try {
+      const apperClient = this.getApperClient();
+      const params = {
+        fields: [
+          { field: { Name: "Name" } },
+          { field: { Name: "agent" } },
+          { field: { Name: "quantite" } },
+          { field: { Name: "date_emprunt" } },
+          { field: { Name: "date_retour_prevue" } },
+          { field: { Name: "date_retour_effective" } },
+          { field: { Name: "status" } },
+          { field: { Name: "commentaires" } },
+          { 
+            field: { name: "article_id" },
+            referenceField: { field: { Name: "nom" } }
+          }
+        ]
+      };
+
+      const response = await apperClient.getRecordById(this.tableName, parseInt(id), params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        toast.error(response.message);
+        return null;
+      }
+
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching emprunt with ID ${id}:`, error);
+      toast.error("Erreur lors du chargement de l'emprunt");
+      return null;
     }
-    return { ...emprunt };
   }
 
   async create(empruntData) {
-    await this.delay();
-    const newId = Math.max(...this.emprunts.map(e => e.Id)) + 1;
-    const newEmprunt = {
-      Id: newId,
-      ...empruntData,
-      dateEmprunt: new Date().toISOString(),
-      status: 'En cours'
-    };
-    this.emprunts.push(newEmprunt);
-    return { ...newEmprunt };
+    try {
+      const apperClient = this.getApperClient();
+      const params = {
+        records: [{
+          Name: empruntData.Name || `Emprunt ${empruntData.agent}`,
+          agent: empruntData.agent,
+          quantite: parseInt(empruntData.quantite),
+          date_emprunt: empruntData.date_emprunt || new Date().toISOString(),
+          date_retour_prevue: empruntData.date_retour_prevue,
+          status: empruntData.status || 'En cours',
+          commentaires: empruntData.commentaires || "",
+          article_id: parseInt(empruntData.article_id || empruntData.articleId)
+        }]
+      };
+
+      const response = await apperClient.createRecord(this.tableName, params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        toast.error(response.message);
+        return null;
+      }
+
+      if (response.results) {
+        const successfulRecords = response.results.filter(result => result.success);
+        const failedRecords = response.results.filter(result => !result.success);
+        
+        if (failedRecords.length > 0) {
+          console.error(`Failed to create ${failedRecords.length} records:${JSON.stringify(failedRecords)}`);
+          failedRecords.forEach(record => {
+            if (record.message) toast.error(record.message);
+          });
+        }
+        
+        return successfulRecords.length > 0 ? successfulRecords[0].data : null;
+      }
+    } catch (error) {
+      console.error("Error creating emprunt:", error);
+      toast.error("Erreur lors de la création de l'emprunt");
+      return null;
+    }
   }
 
   async update(id, updates) {
-    await this.delay();
-    const index = this.emprunts.findIndex(item => item.Id === parseInt(id));
-    if (index === -1) {
-      throw new Error(`Emprunt avec l'ID ${id} introuvable`);
+    try {
+      const apperClient = this.getApperClient();
+      const updateData = {
+        Id: parseInt(id)
+      };
+
+      // Only include updateable fields
+      if (updates.Name !== undefined) updateData.Name = updates.Name;
+      if (updates.agent !== undefined) updateData.agent = updates.agent;
+      if (updates.quantite !== undefined) updateData.quantite = parseInt(updates.quantite);
+      if (updates.date_emprunt !== undefined) updateData.date_emprunt = updates.date_emprunt;
+      if (updates.date_retour_prevue !== undefined) updateData.date_retour_prevue = updates.date_retour_prevue;
+      if (updates.date_retour_effective !== undefined) updateData.date_retour_effective = updates.date_retour_effective;
+      if (updates.status !== undefined) updateData.status = updates.status;
+      if (updates.commentaires !== undefined) updateData.commentaires = updates.commentaires;
+      if (updates.article_id !== undefined) updateData.article_id = parseInt(updates.article_id);
+
+      const params = {
+        records: [updateData]
+      };
+
+      const response = await apperClient.updateRecord(this.tableName, params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        toast.error(response.message);
+        return null;
+      }
+
+      if (response.results) {
+        const successfulUpdates = response.results.filter(result => result.success);
+        const failedUpdates = response.results.filter(result => !result.success);
+        
+        if (failedUpdates.length > 0) {
+          console.error(`Failed to update ${failedUpdates.length} records:${JSON.stringify(failedUpdates)}`);
+          failedUpdates.forEach(record => {
+            if (record.message) toast.error(record.message);
+          });
+        }
+        
+        return successfulUpdates.length > 0 ? successfulUpdates[0].data : null;
+      }
+    } catch (error) {
+      console.error("Error updating emprunt:", error);
+      toast.error("Erreur lors de la mise à jour de l'emprunt");
+      return null;
     }
-    this.emprunts[index] = { ...this.emprunts[index], ...updates };
-    return { ...this.emprunts[index] };
   }
 
-  async delete(id) {
-    await this.delay();
-    const index = this.emprunts.findIndex(item => item.Id === parseInt(id));
-    if (index === -1) {
-      throw new Error(`Emprunt avec l'ID ${id} introuvable`);
+  async delete(recordIds) {
+    try {
+      const apperClient = this.getApperClient();
+      const ids = Array.isArray(recordIds) ? recordIds : [recordIds];
+      
+      const params = {
+        RecordIds: ids.map(id => parseInt(id))
+      };
+
+      const response = await apperClient.deleteRecord(this.tableName, params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        toast.error(response.message);
+        return false;
+      }
+
+      if (response.results) {
+        const successfulDeletions = response.results.filter(result => result.success);
+        const failedDeletions = response.results.filter(result => !result.success);
+        
+        if (failedDeletions.length > 0) {
+          console.error(`Failed to delete ${failedDeletions.length} records:${JSON.stringify(failedDeletions)}`);
+          failedDeletions.forEach(record => {
+            if (record.message) toast.error(record.message);
+          });
+        }
+        
+        return successfulDeletions.length === ids.length;
+      }
+    } catch (error) {
+      console.error("Error deleting emprunts:", error);
+      toast.error("Erreur lors de la suppression des emprunts");
+      return false;
     }
-    const deletedEmprunt = this.emprunts.splice(index, 1)[0];
-    return { ...deletedEmprunt };
-  }
-
-  async getByAgent(agent) {
-    await this.delay();
-    return this.emprunts.filter(emprunt => 
-      emprunt.agent.toLowerCase().includes(agent.toLowerCase())
-    );
-  }
-
-  async getByArticle(articleId) {
-    await this.delay();
-    return this.emprunts.filter(emprunt => emprunt.articleId === parseInt(articleId));
-  }
-
-  async getByStatus(status) {
-    await this.delay();
-    return this.emprunts.filter(emprunt => emprunt.status === status);
-  }
-
-  async getOverdue() {
-    await this.delay();
-    const now = new Date();
-    return this.emprunts.filter(emprunt => 
-      emprunt.status === 'En cours' && 
-      new Date(emprunt.dateRetourPrevue) < now
-    ).map(emprunt => ({ ...emprunt, status: 'En retard' }));
   }
 
   async markAsReturned(id, dateRetourEffective = new Date().toISOString()) {
-    await this.delay();
-    const index = this.emprunts.findIndex(item => item.Id === parseInt(id));
-    if (index === -1) {
-      throw new Error(`Emprunt avec l'ID ${id} introuvable`);
-    }
-    
-    this.emprunts[index] = {
-      ...this.emprunts[index],
+    return this.update(id, {
       status: 'Retourné',
-      dateRetourEffective
-    };
-    
-    return { ...this.emprunts[index] };
+      date_retour_effective: dateRetourEffective
+    });
   }
 }
 

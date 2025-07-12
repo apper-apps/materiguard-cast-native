@@ -39,15 +39,16 @@ const EmpruntTable = () => {
     loadData();
   }, []);
 
-  const getArticleName = (articleId) => {
-    const article = articles.find(a => a.Id === articleId);
-    return article ? article.nom : 'Article inconnu';
+const getArticleName = (emprunt) => {
+    if (emprunt.article_id && typeof emprunt.article_id === 'object' && emprunt.article_id.nom) {
+      return emprunt.article_id.nom;
+    }
+    return 'Article inconnu';
   };
 
-  const getStatusBadge = (emprunt) => {
+const getStatusBadge = (emprunt) => {
     const now = new Date();
-    const dateRetour = new Date(emprunt.dateRetourPrevue);
-    
+    const dateRetour = new Date(emprunt.date_retour_prevue);
     if (emprunt.status === 'Retourné') {
       return { variant: 'success', label: 'Retourné', icon: 'CheckCircle' };
     }
@@ -131,17 +132,17 @@ const EmpruntTable = () => {
                     </div>
                   </td>
                   
-                  <td className="px-6 py-4">
-                    <div className="text-sm text-gray-900">{getArticleName(emprunt.articleId)}</div>
+<td className="px-6 py-4">
+                    <div className="text-sm text-gray-900">{getArticleName(emprunt)}</div>
                   </td>
                   
                   <td className="px-6 py-4">
                     <div className="text-sm text-gray-900">{emprunt.quantite}</div>
                   </td>
                   
-                  <td className="px-6 py-4">
+<td className="px-6 py-4">
                     <div className="text-sm text-gray-900">
-                      {format(new Date(emprunt.dateRetourPrevue), 'dd MMM yyyy', { locale: fr })}
+                      {format(new Date(emprunt.date_retour_prevue), 'dd MMM yyyy', { locale: fr })}
                     </div>
                   </td>
                   

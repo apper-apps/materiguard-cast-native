@@ -1,13 +1,13 @@
-import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { toast } from 'react-toastify';
-import ApperIcon from '@/components/ApperIcon';
-import Button from '@/components/atoms/Button';
-import Input from '@/components/atoms/Input';
-import FilterDropdown from '@/components/molecules/FilterDropdown';
-import { generateRemiseQRCode } from '@/utils/qrCodeGenerator';
-import remiseService from '@/services/api/remiseService';
-import articleService from '@/services/api/articleService';
+import React, { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import { toast } from "react-toastify";
+import { generateRemiseQRCode } from "@/utils/qrCodeGenerator";
+import ApperIcon from "@/components/ApperIcon";
+import Button from "@/components/atoms/Button";
+import Input from "@/components/atoms/Input";
+import FilterDropdown from "@/components/molecules/FilterDropdown";
+import articleService from "@/services/api/articleService";
+import remiseService from "@/services/api/remiseService";
 
 const RemiseForm = ({ onSuccess }) => {
   const [formData, setFormData] = useState({
@@ -27,10 +27,10 @@ useEffect(() => {
         const articles = await articleService.getAll();
         // Filter to only available items and format for dropdown
         const availableItems = articles
-          .filter(item => item.quantiteDisponible > 0)
+.filter(item => item.quantite_disponible > 0)
           .map(item => ({
             value: item.Id,
-            label: `${item.nom} (Disponible: ${item.quantiteDisponible})`,
+label: `${item.nom} (Disponible: ${item.quantite_disponible})`,
             item: item
           }));
         setStockItems(availableItems);
@@ -89,14 +89,17 @@ const handleSubmit = async (e) => {
 try {
       setLoading(true);
       
-      // Convert selected items to material names for storage
+// Convert selected items to material names for storage
       const materielFiltered = formData.materiel
         .filter(m => m && m.item)
         .map(m => m.item.nom);
       
-      const remiseData = {
-        ...formData,
+const remiseData = {
+        Name: `Remise ${formData.agent}`,
+        agent: formData.agent,
         materiel: materielFiltered,
+        date_retour_prevue: formData.dateRetourPrevue,
+        commentaires: formData.commentaires,
         signature: 'signature_electronique_' + Date.now()
       };
 
@@ -147,8 +150,7 @@ const resetForm = () => {
           <h3 className="text-xl font-semibold text-gray-900 mb-2">
             Remise créée avec succès !
           </h3>
-          
-          <p className="text-gray-600 mb-6">
+<p className="text-gray-600 mb-6">
             Voici le QR code de la remise pour {formData.agent}
           </p>
           

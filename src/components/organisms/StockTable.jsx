@@ -1,13 +1,14 @@
-import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { toast } from 'react-toastify';
-import ApperIcon from '@/components/ApperIcon';
-import Button from '@/components/atoms/Button';
-import Badge from '@/components/atoms/Badge';
-import Loading from '@/components/ui/Loading';
-import Error from '@/components/ui/Error';
-import Empty from '@/components/ui/Empty';
-import articleService from '@/services/api/articleService';
+import React, { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import { toast } from "react-toastify";
+import ApperIcon from "@/components/ApperIcon";
+import Badge from "@/components/atoms/Badge";
+import Button from "@/components/atoms/Button";
+import Empty from "@/components/ui/Empty";
+import Error from "@/components/ui/Error";
+import Loading from "@/components/ui/Loading";
+import Stock from "@/components/pages/Stock";
+import articleService from "@/services/api/articleService";
 
 const StockTable = ({ onEditArticle }) => {
   const [articles, setArticles] = useState([]);
@@ -31,18 +32,18 @@ const StockTable = ({ onEditArticle }) => {
     loadArticles();
   }, []);
 
-  const getStockStatus = (article) => {
-    if (article.quantiteDisponible === 0) {
+const getStockStatus = (article) => {
+    if (article.quantite_disponible === 0) {
       return { variant: 'danger', label: 'Rupture', icon: 'AlertTriangle' };
     }
-    if (article.quantiteDisponible <= article.seuilAlerte) {
+    if (article.quantite_disponible <= article.seuil_alerte) {
       return { variant: 'warning', label: 'Stock faible', icon: 'AlertCircle' };
     }
     return { variant: 'success', label: 'Disponible', icon: 'CheckCircle' };
   };
 
-  const getAvailabilityPercentage = (article) => {
-    return Math.round((article.quantiteDisponible / article.quantiteTotal) * 100);
+const getAvailabilityPercentage = (article) => {
+    return Math.round((article.quantite_disponible / article.quantite_total) * 100);
   };
 
   if (loading) return <Loading type="table" />;
@@ -104,11 +105,10 @@ const StockTable = ({ onEditArticle }) => {
                   <td className="px-6 py-4">
                     <Badge variant="default">{article.categorie}</Badge>
                   </td>
-                  
-                  <td className="px-6 py-4">
+<td className="px-6 py-4">
                     <div className="space-y-2">
                       <div className="text-sm text-gray-900">
-                        <span className="font-semibold">{article.quantiteDisponible}</span> / {article.quantiteTotal}
+                        <span className="font-semibold">{article.quantite_disponible}</span> / {article.quantite_total}
                       </div>
                       <div className="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
                         <div 
