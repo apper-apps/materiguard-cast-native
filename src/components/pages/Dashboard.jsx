@@ -1,12 +1,13 @@
-import { motion } from 'framer-motion';
-import { useAuth } from '@/App';
-import Header from '@/components/organisms/Header';
-import DashboardStats from '@/components/organisms/DashboardStats';
-import AlertsPanel from '@/components/organisms/AlertsPanel';
-import EmpruntTable from '@/components/organisms/EmpruntTable';
+import React, { useContext } from "react";
+import { motion } from "framer-motion";
+import { AuthContext } from "@/App";
+import DashboardStats from "@/components/organisms/DashboardStats";
+import EmpruntTable from "@/components/organisms/EmpruntTable";
+import AlertsPanel from "@/components/organisms/AlertsPanel";
+import Header from "@/components/organisms/Header";
 
 const Dashboard = () => {
-  const { user } = useAuth();
+  const { user } = useContext(AuthContext);
   return (
     <div className="h-full">
       <Header 
