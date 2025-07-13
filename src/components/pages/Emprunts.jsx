@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useAuth } from '@/App';
+import { useSelector } from 'react-redux';
 import { motion } from 'framer-motion';
 import { toast } from 'react-toastify';
 import Header from '@/components/organisms/Header';
@@ -9,8 +9,9 @@ import Input from '@/components/atoms/Input';
 import FilterDropdown from '@/components/molecules/FilterDropdown';
 import articleService from '@/services/api/articleService';
 import empruntService from '@/services/api/empruntService';
+
 const Emprunts = () => {
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useSelector((state) => state.user);
   const [showAddForm, setShowAddForm] = useState(false);
   const [articles, setArticles] = useState([]);
   const [formData, setFormData] = useState({
@@ -84,7 +85,7 @@ const Emprunts = () => {
 
 const headerActions = [];
   
-  if (user.role === 'Administrator' || user.role === 'Manager') {
+  if (isAuthenticated && user?.role && (user.role === 'Administrator' || user.role === 'Manager')) {
     headerActions.push({
       label: 'Nouvel emprunt',
       icon: 'Plus',
@@ -92,7 +93,6 @@ const headerActions = [];
       variant: 'primary'
     });
   }
-
   return (
     <div className="h-full">
       <Header 
@@ -100,9 +100,8 @@ const headerActions = [];
         subtitle="Suivez les emprunts d'équipements par les agents"
         actions={headerActions}
       />
-      
-      <div className="p-6 space-y-6">
-{showAddForm && (user.role === 'Administrator' || user.role === 'Manager') && (
+<div className="p-6 space-y-6">
+        {showAddForm && isAuthenticated && user?.role && (user.role === 'Administrator' || user.role === 'Manager') && (
           <motion.div
             className="card max-w-2xl mx-auto"
             initial={{ opacity: 0, y: -20 }}

@@ -17,12 +17,10 @@ const AlertsPanel = () => {
     try {
       setLoading(true);
       setError(null);
-      
-      const [lowStockArticles, overdueEmprunts] = await Promise.all([
+const [lowStockArticles, overdueEmprunts] = await Promise.all([
         articleService.getLowStock(),
         empruntService.getOverdue()
       ]);
-
       const alertsData = [
         ...lowStockArticles.map(article => ({
           id: `stock-${article.Id}`,

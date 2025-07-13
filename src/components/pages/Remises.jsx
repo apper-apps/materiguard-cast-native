@@ -1,13 +1,13 @@
 import { useState } from 'react';
-import { useAuth } from '@/App';
+import { useSelector } from 'react-redux';
 import { motion } from 'framer-motion';
 import Header from '@/components/organisms/Header';
 import RemiseForm from '@/components/organisms/RemiseForm';
 import HistoriqueTable from '@/components/organisms/HistoriqueTable';
-const Remises = () => {
-  const { user } = useAuth();
-  const [showForm, setShowForm] = useState(false);
 
+const Remises = () => {
+  const { user, isAuthenticated } = useSelector((state) => state.user);
+  const [showForm, setShowForm] = useState(false);
   const handleCreateRemise = () => {
     setShowForm(true);
   };
@@ -18,7 +18,7 @@ const Remises = () => {
 
 const headerActions = [];
   
-  if (user.role === 'Administrator' || user.role === 'Manager') {
+  if (isAuthenticated && user?.role && (user.role === 'Administrator' || user.role === 'Manager')) {
     headerActions.push({
       label: 'Nouvelle remise',
       icon: 'Plus',
@@ -26,7 +26,6 @@ const headerActions = [];
       variant: 'primary'
     });
   }
-
   return (
     <div className="h-full">
       <Header 
@@ -34,9 +33,8 @@ const headerActions = [];
         subtitle="Gérez les remises d'équipements aux agents"
         actions={headerActions}
       />
-      
-      <div className="p-6">
-{showForm && (user.role === 'Administrator' || user.role === 'Manager') ? (
+<div className="p-6">
+        {showForm && isAuthenticated && user?.role && (user.role === 'Administrator' || user.role === 'Manager') ? (
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}

@@ -219,8 +219,23 @@ class EmpruntService {
   async markAsReturned(id, dateRetourEffective = new Date().toISOString()) {
     return this.update(id, {
       status: 'Retourné',
-      date_retour_effective: dateRetourEffective
+date_retour_effective: dateRetourEffective
     });
+  }
+
+  async getOverdue() {
+    try {
+      const emprunts = await this.getAll();
+      const now = new Date();
+      
+      return emprunts.filter(emprunt => 
+        emprunt.status === 'En cours' && 
+        new Date(emprunt.date_retour_prevue) < now
+      );
+    } catch (error) {
+      console.error("Error fetching overdue emprunts:", error);
+      return [];
+    }
   }
 }
 

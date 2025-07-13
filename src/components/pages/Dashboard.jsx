@@ -1,13 +1,14 @@
-import React, { useContext } from "react";
+import React from "react";
+import { useSelector } from "react-redux";
 import { motion } from "framer-motion";
-import { AuthContext } from "@/App";
 import DashboardStats from "@/components/organisms/DashboardStats";
 import EmpruntTable from "@/components/organisms/EmpruntTable";
 import AlertsPanel from "@/components/organisms/AlertsPanel";
 import Header from "@/components/organisms/Header";
 
 const Dashboard = () => {
-  const { user } = useContext(AuthContext);
+  const { user, isAuthenticated } = useSelector((state) => state.user);
+  
   return (
     <div className="h-full">
       <Header 

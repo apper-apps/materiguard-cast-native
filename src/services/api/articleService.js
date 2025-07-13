@@ -216,6 +216,36 @@ class ArticleService {
       console.error("Error deleting articles:", error);
       toast.error("Erreur lors de la suppression des articles");
       return false;
+}
+  }
+
+  async getLowStock() {
+    try {
+      const articles = await this.getAll();
+      return articles.filter(article => 
+        article.quantite_disponible <= article.seuil_alerte
+      );
+    } catch (error) {
+      console.error("Error fetching low stock articles:", error);
+      return [];
+    }
+  }
+
+  async updateStock(articleId, quantityChange) {
+    try {
+      const article = await this.getById(articleId);
+      if (!article) {
+        throw new Error('Article not found');
+      }
+
+      const newQuantity = Math.max(0, article.quantite_disponible + quantityChange);
+      
+      return this.update(articleId, {
+        quantite_disponible: newQuantity
+      });
+    } catch (error) {
+      console.error("Error updating stock:", error);
+      throw error;
     }
   }
 }

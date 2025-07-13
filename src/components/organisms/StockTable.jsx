@@ -41,11 +41,9 @@ const getStockStatus = (article) => {
     }
     return { variant: 'success', label: 'Disponible', icon: 'CheckCircle' };
   };
-
 const getAvailabilityPercentage = (article) => {
     return Math.round((article.quantite_disponible / article.quantite_total) * 100);
   };
-
   if (loading) return <Loading type="table" />;
   if (error) return <Error message={error} onRetry={loadArticles} />;
   if (articles.length === 0) return <Empty title="Aucun article en stock" description="Commencez par ajouter des articles à votre inventaire" />;
@@ -122,7 +120,6 @@ const getAvailabilityPercentage = (article) => {
                       <div className="text-xs text-gray-500">{availability}% disponible</div>
                     </div>
                   </td>
-                  
                   <td className="px-6 py-4">
                     <Badge variant={status.variant} icon={status.icon}>
                       {status.label}
