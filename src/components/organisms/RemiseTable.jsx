@@ -1,34 +1,27 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import { toast } from "react-toastify";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { toast } from "react-toastify";
 import ApperIcon from "@/components/ApperIcon";
 import Badge from "@/components/atoms/Badge";
 import Button from "@/components/atoms/Button";
 import Empty from "@/components/ui/Empty";
 import Error from "@/components/ui/Error";
 import Loading from "@/components/ui/Loading";
-import Emprunts from "@/components/pages/Emprunts";
-import empruntService from "@/services/api/empruntService";
-import articleService from "@/services/api/articleService";
+import remiseService from "@/services/api/remiseService";
 
-const EmpruntTable = () => {
-  const [emprunts, setEmprunts] = useState([]);
-  const [articles, setArticles] = useState([]);
+const RemiseTable = ({ onEditRemise }) => {
+  const [remises, setRemises] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const loadData = async () => {
+  const loadRemises = async () => {
     try {
       setLoading(true);
       setError(null);
-      const [empruntsData, articlesData] = await Promise.all([
-        empruntService.getAll(),
-        articleService.getAll()
-      ]);
-      setEmprunts(empruntsData);
-      setArticles(articlesData);
+      const data = await remiseService.getAll();
+      setRemises(data);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -37,66 +30,47 @@ const EmpruntTable = () => {
   };
 
   useEffect(() => {
-    loadData();
+    loadRemises();
   }, []);
 
-const getArticleName = (emprunt) => {
-    if (emprunt.article_id && typeof emprunt.article_id === 'object' && emprunt.article_id.nom) {
-      return emprunt.article_id.nom;
+  const getStatusBadge = (remise) => {
+    switch (remise.status) {
+      case 'Actif':
+        return { variant: 'info', label: 'Actif', icon: 'Clock' };
+      case 'Retourné':
+        return { variant: 'success', label: 'Retourné', icon: 'CheckCircle' };
+      case 'En retard':
+        return { variant: 'danger', label: 'En retard', icon: 'AlertTriangle' };
+      default:
+        return { variant: 'default', label: remise.status || 'Inconnu', icon: 'Info' };
     }
-    return 'Article inconnu';
   };
 
-const getStatusBadge = (emprunt) => {
-    const now = new Date();
-    const dateRetour = new Date(emprunt.date_retour_prevue);
-    if (emprunt.status === 'Retourné') {
-      return { variant: 'success', label: 'Retourné', icon: 'CheckCircle' };
-    }
-    
-    if (dateRetour < now && emprunt.status === 'En cours') {
-      return { variant: 'danger', label: 'En retard', icon: 'AlertTriangle' };
-    }
-    
-    return { variant: 'info', label: 'En cours', icon: 'Clock' };
-  };
-
-  const handleReturn = async (empruntId) => {
-    try {
-      await empruntService.markAsReturned(empruntId);
-      
-// Mettre à jour le stock
-      const emprunt = emprunts.find(e => e.Id === empruntId);
-      if (emprunt) {
-        const articleId = emprunt.article_id && typeof emprunt.article_id === 'object' ? emprunt.article_id.Id : emprunt.article_id;
-        await articleService.updateStock(articleId, emprunt.quantite);
-      }
-      
-toast.success('Retour enregistré avec succès');
-      loadData();
-    } catch (err) {
-      toast.error('Erreur lors de l\'enregistrement du retour');
-    }
-  };
-  const handleDelete = async (empruntId) => {
-    if (window.confirm('Êtes-vous sûr de vouloir supprimer cet emprunt ? Cette action est irréversible.')) {
+  const handleDelete = async (remiseId) => {
+    if (window.confirm('Êtes-vous sûr de vouloir supprimer cette remise ? Cette action est irréversible.')) {
       try {
-        await empruntService.delete(empruntId);
-        toast.success('Emprunt supprimé avec succès');
-        loadData();
+        await remiseService.delete(remiseId);
+        toast.success('Remise supprimée avec succès');
+        loadRemises();
       } catch (err) {
-        toast.error('Erreur lors de la suppression de l\'emprunt');
+        toast.error('Erreur lors de la suppression de la remise');
       }
     }
   };
+
+  const handleView = (remise) => {
+    // Implementation for viewing remise details
+    toast.info(`Affichage des détails de la remise pour ${remise.agent}`);
+  };
+
   if (loading) return <Loading type="table" />;
-  if (error) return <Error message={error} onRetry={loadData} />;
-  if (emprunts.length === 0) return <Empty title="Aucun emprunt" description="Aucun emprunt d'équipement n'a été enregistré" />;
+  if (error) return <Error message={error} onRetry={loadRemises} />;
+  if (remises.length === 0) return <Empty title="Aucune remise" description="Aucune remise de matériel n'a été enregistrée" />;
 
   return (
     <div className="card">
       <div className="card-header">
-        <h3 className="text-lg font-semibold text-gray-900">Emprunts en cours</h3>
+        <h3 className="text-lg font-semibold text-gray-900">Historique des remises</h3>
       </div>
       
       <div className="overflow-x-auto">
@@ -107,10 +81,10 @@ toast.success('Retour enregistré avec succès');
                 Agent
               </th>
               <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Article
+                Matériel
               </th>
               <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Quantité
+                Date
               </th>
               <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Date retour prévue
@@ -124,12 +98,12 @@ toast.success('Retour enregistré avec succès');
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {emprunts.map((emprunt, index) => {
-              const status = getStatusBadge(emprunt);
+            {remises.map((remise, index) => {
+              const status = getStatusBadge(remise);
               
               return (
                 <motion.tr
-                  key={emprunt.Id}
+                  key={remise.Id}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: index * 0.05 }}
@@ -140,21 +114,33 @@ toast.success('Retour enregistré avec succès');
                       <div className="w-8 h-8 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center mr-3">
                         <ApperIcon name="User" className="w-4 h-4 text-white" />
                       </div>
-                      <div className="text-sm font-medium text-gray-900">{emprunt.agent}</div>
+                      <div className="text-sm font-medium text-gray-900">{remise.agent}</div>
                     </div>
                   </td>
                   
-<td className="px-6 py-4">
-                    <div className="text-sm text-gray-900">{getArticleName(emprunt)}</div>
+                  <td className="px-6 py-4">
+                    <div className="text-sm text-gray-900">
+                      {Array.isArray(remise.materiel) 
+                        ? remise.materiel.join(', ')
+                        : typeof remise.materiel === 'string' 
+                          ? remise.materiel.split(',').join(', ')
+                          : remise.materiel || 'Non spécifié'
+                      }
+                    </div>
                   </td>
                   
                   <td className="px-6 py-4">
-                    <div className="text-sm text-gray-900">{emprunt.quantite}</div>
+                    <div className="text-sm text-gray-900">
+                      {remise.date ? format(new Date(remise.date), 'dd MMM yyyy', { locale: fr }) : 'Non spécifié'}
+                    </div>
                   </td>
                   
-<td className="px-6 py-4">
+                  <td className="px-6 py-4">
                     <div className="text-sm text-gray-900">
-                      {format(new Date(emprunt.date_retour_prevue), 'dd MMM yyyy', { locale: fr })}
+                      {remise.date_retour_prevue 
+                        ? format(new Date(remise.date_retour_prevue), 'dd MMM yyyy', { locale: fr })
+                        : 'Non spécifié'
+                      }
                     </div>
                   </td>
                   
@@ -164,16 +150,25 @@ toast.success('Retour enregistré avec succès');
                     </Badge>
                   </td>
                   
-<td className="px-6 py-4">
+                  <td className="px-6 py-4">
                     <div className="flex items-center space-x-2">
-                      {emprunt.status !== 'Retourné' && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        icon="Eye"
+                        onClick={() => handleView(remise)}
+                      >
+                        Voir
+                      </Button>
+                      
+                      {onEditRemise && (
                         <Button
-                          variant="secondary"
+                          variant="outline"
                           size="sm"
-                          icon="CheckCircle"
-                          onClick={() => handleReturn(emprunt.Id)}
+                          icon="Edit"
+                          onClick={() => onEditRemise(remise)}
                         >
-                          Marquer retourné
+                          Modifier
                         </Button>
                       )}
                       
@@ -181,7 +176,7 @@ toast.success('Retour enregistré avec succès');
                         variant="outline"
                         size="sm"
                         icon="Trash2"
-                        onClick={() => handleDelete(emprunt.Id)}
+                        onClick={() => handleDelete(remise.Id)}
                         className="text-red-600 border-red-200 hover:bg-red-50"
                       >
                         Supprimer
@@ -198,4 +193,4 @@ toast.success('Retour enregistré avec succès');
   );
 };
 
-export default EmpruntTable;
+export default RemiseTable;

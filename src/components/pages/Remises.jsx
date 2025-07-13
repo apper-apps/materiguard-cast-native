@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import { motion } from 'framer-motion';
 import Header from '@/components/organisms/Header';
 import RemiseForm from '@/components/organisms/RemiseForm';
-import HistoriqueTable from '@/components/organisms/HistoriqueTable';
+import RemiseTable from '@/components/organisms/RemiseTable';
 
 const Remises = () => {
   const { user, isAuthenticated } = useSelector((state) => state.user);
@@ -46,7 +46,7 @@ const headerActions = [];
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            <HistoriqueTable />
+            <RemiseTable />
           </motion.div>
         )}
       </div>

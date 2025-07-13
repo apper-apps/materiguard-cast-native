@@ -31,6 +31,17 @@ const StockTable = ({ onEditArticle }) => {
   useEffect(() => {
     loadArticles();
   }, []);
+const handleDelete = async (articleId) => {
+    if (window.confirm('Êtes-vous sûr de vouloir supprimer cet article ? Cette action est irréversible.')) {
+      try {
+        await articleService.delete(articleId);
+        toast.success('Article supprimé avec succès');
+        loadArticles();
+      } catch (err) {
+        toast.error('Erreur lors de la suppression de l\'article');
+      }
+    }
+  };
 
 const getStockStatus = (article) => {
     if (article.quantite_disponible === 0) {
@@ -126,7 +137,7 @@ const getAvailabilityPercentage = (article) => {
                     </Badge>
                   </td>
                   
-                  <td className="px-6 py-4">
+<td className="px-6 py-4">
                     <div className="flex items-center space-x-2">
                       <Button
                         variant="outline"
@@ -135,6 +146,16 @@ const getAvailabilityPercentage = (article) => {
                         onClick={() => onEditArticle(article)}
                       >
                         Modifier
+                      </Button>
+                      
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        icon="Trash2"
+                        onClick={() => handleDelete(article.Id)}
+                        className="text-red-600 border-red-200 hover:bg-red-50"
+                      >
+                        Supprimer
                       </Button>
                     </div>
                   </td>

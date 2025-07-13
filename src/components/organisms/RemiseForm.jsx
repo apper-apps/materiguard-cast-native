@@ -157,10 +157,13 @@ const resetForm = () => {
           <div className="bg-white p-4 rounded-lg border-2 border-gray-200 inline-block mb-6">
             <img src={qrCode} alt="QR Code remise" className="w-48 h-48" />
           </div>
-          
-          <div className="flex gap-3 justify-center">
+<div className="flex gap-3 justify-center">
             <Button variant="outline" onClick={resetForm}>
               Nouvelle remise
+            </Button>
+            <Button variant="outline" onClick={() => onSuccess && onSuccess()}>
+              <ApperIcon name="ArrowLeft" className="w-4 h-4 mr-2" />
+              Retour à la liste
             </Button>
             <Button variant="primary" onClick={() => window.print()}>
               <ApperIcon name="Printer" className="w-4 h-4 mr-2" />
