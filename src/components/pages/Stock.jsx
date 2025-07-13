@@ -75,16 +75,16 @@ const Stock = () => {
     }
   };
 
-  const handleEdit = (article) => {
+const handleEdit = (article) => {
     setEditingArticle(article);
     setFormData({
       nom: article.nom,
       categorie: article.categorie,
-      quantiteTotal: article.quantiteTotal.toString(),
-      seuilAlerte: article.seuilAlerte.toString(),
+      quantiteTotal: article.quantite_total?.toString() || '',
+      seuilAlerte: article.seuil_alerte?.toString() || '',
       marque: article.marque || '',
       modele: article.modele || '',
-      prixUnitaire: article.prixUnitaire?.toString() || ''
+      prixUnitaire: article.prix_unitaire?.toString() || ''
     });
     setShowAddForm(true);
 };

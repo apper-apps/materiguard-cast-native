@@ -24,8 +24,8 @@ const Emprunts = () => {
 
   const loadArticles = async () => {
     try {
-      const data = await articleService.getAll();
-      setArticles(data.filter(a => a.quantiteDisponible > 0));
+const data = await articleService.getAll();
+      setArticles(data.filter(a => a.quantite_disponible > 0));
     } catch (err) {
       toast.error('Erreur lors du chargement des articles');
     }
@@ -53,8 +53,8 @@ const Emprunts = () => {
       };
 
       // Vérifier le stock disponible
-      const article = articles.find(a => a.Id === empruntData.articleId);
-      if (!article || article.quantiteDisponible < empruntData.quantite) {
+const article = articles.find(a => a.Id === empruntData.articleId);
+      if (!article || article.quantite_disponible < empruntData.quantite) {
         toast.error('Stock insuffisant pour cet article');
         return;
       }
@@ -78,9 +78,9 @@ const Emprunts = () => {
     loadArticles();
   };
 
-  const articleOptions = articles.map(article => ({
+const articleOptions = articles.map(article => ({
     value: article.Id,
-    label: `${article.nom} (${article.quantiteDisponible} disponibles)`
+    label: `${article.nom} (${article.quantite_disponible} disponibles)`
   }));
 
 const headerActions = [];

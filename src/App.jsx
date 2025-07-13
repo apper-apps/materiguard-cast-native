@@ -14,6 +14,7 @@ import ResetPassword from "@/components/pages/ResetPassword";
 import Dashboard from "@/components/pages/Dashboard";
 import Remises from "@/components/pages/Remises";
 import Historique from "@/components/pages/Historique";
+import MonCompte from "@/components/pages/MonCompte";
 import Login from "@/components/pages/Login";
 import Callback from "@/components/pages/Callback";
 
@@ -164,7 +165,7 @@ function App() {
           <Route path="/callback" element={<Callback />} />
           <Route path="/error" element={<ErrorPage />} />
           <Route path="/prompt-password/:appId/:emailAddress/:provider" element={<PromptPassword />} />
-          <Route path="/reset-password/:appId/:fields" element={<ResetPassword />} />
+<Route path="/reset-password/:appId/:fields" element={<ResetPassword />} />
           <Route path="/*" element={<Layout />} />
         </Routes>
         <ToastContainer

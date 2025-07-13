@@ -1,8 +1,8 @@
 import { toast } from 'react-toastify';
 
-class ArticleService {
+class StockService {
   constructor() {
-    this.tableName = 'article';
+    this.tableName = 'stock';
   }
 
   getApperClient() {
@@ -19,16 +19,11 @@ class ArticleService {
       const params = {
         fields: [
           { field: { Name: "Name" } },
-          { field: { Name: "nom" } },
-          { field: { Name: "categorie" } },
-          { field: { Name: "quantite_total" } },
-          { field: { Name: "quantite_disponible" } },
-          { field: { Name: "seuil_alerte" } },
-          { field: { Name: "image" } },
-          { field: { Name: "description" } },
-          { field: { Name: "marque" } },
-          { field: { Name: "modele" } },
-          { field: { Name: "prix_unitaire" } }
+          { field: { Name: "quantity" } },
+          { 
+            field: { name: "article" },
+            referenceField: { field: { Name: "nom" } }
+          }
         ]
       };
 
@@ -42,8 +37,8 @@ class ArticleService {
 
       return response.data || [];
     } catch (error) {
-      console.error("Error fetching articles:", error);
-      toast.error("Erreur lors du chargement des articles");
+      console.error("Error fetching stock:", error);
+      toast.error("Erreur lors du chargement du stock");
       return [];
     }
   }
@@ -54,16 +49,11 @@ class ArticleService {
       const params = {
         fields: [
           { field: { Name: "Name" } },
-          { field: { Name: "nom" } },
-          { field: { Name: "categorie" } },
-          { field: { Name: "quantite_total" } },
-          { field: { Name: "quantite_disponible" } },
-          { field: { Name: "seuil_alerte" } },
-          { field: { Name: "image" } },
-          { field: { Name: "description" } },
-          { field: { Name: "marque" } },
-          { field: { Name: "modele" } },
-          { field: { Name: "prix_unitaire" } }
+          { field: { Name: "quantity" } },
+          { 
+            field: { name: "article" },
+            referenceField: { field: { Name: "nom" } }
+          }
         ]
       };
 
@@ -77,28 +67,20 @@ class ArticleService {
 
       return response.data;
     } catch (error) {
-      console.error(`Error fetching article with ID ${id}:`, error);
-      toast.error("Erreur lors du chargement de l'article");
+      console.error(`Error fetching stock with ID ${id}:`, error);
+      toast.error("Erreur lors du chargement du stock");
       return null;
     }
   }
 
-async create(articleData) {
+  async create(stockData) {
     try {
       const apperClient = this.getApperClient();
       const params = {
         records: [{
-          Name: articleData.Name || articleData.nom,
-          nom: articleData.nom,
-          categorie: articleData.categorie,
-          quantite_total: parseInt(articleData.quantite_total || articleData.quantiteTotal),
-          quantite_disponible: parseInt(articleData.quantite_disponible || articleData.quantiteTotal),
-          seuil_alerte: parseInt(articleData.seuil_alerte || articleData.seuilAlerte),
-          image: articleData.image || "",
-          description: articleData.description || "",
-          marque: articleData.marque || "",
-          modele: articleData.modele || "",
-          prix_unitaire: parseFloat(articleData.prix_unitaire || articleData.prixUnitaire || 0)
+          Name: stockData.Name || `Stock ${stockData.article}`,
+          quantity: parseInt(stockData.quantity),
+          article: parseInt(stockData.article)
         }]
       };
 
@@ -124,13 +106,13 @@ async create(articleData) {
         return successfulRecords.length > 0 ? successfulRecords[0].data : null;
       }
     } catch (error) {
-      console.error("Error creating article:", error);
-      toast.error("Erreur lors de la création de l'article");
+      console.error("Error creating stock:", error);
+      toast.error("Erreur lors de la création du stock");
       return null;
     }
   }
 
-async update(id, updates) {
+  async update(id, updates) {
     try {
       const apperClient = this.getApperClient();
       const updateData = {
@@ -139,16 +121,8 @@ async update(id, updates) {
 
       // Only include updateable fields
       if (updates.Name !== undefined) updateData.Name = updates.Name;
-      if (updates.nom !== undefined) updateData.nom = updates.nom;
-      if (updates.categorie !== undefined) updateData.categorie = updates.categorie;
-      if (updates.quantite_total !== undefined) updateData.quantite_total = parseInt(updates.quantite_total || updates.quantiteTotal);
-      if (updates.quantite_disponible !== undefined) updateData.quantite_disponible = parseInt(updates.quantite_disponible || updates.quantiteDisponible);
-      if (updates.seuil_alerte !== undefined) updateData.seuil_alerte = parseInt(updates.seuil_alerte || updates.seuilAlerte);
-      if (updates.image !== undefined) updateData.image = updates.image;
-      if (updates.description !== undefined) updateData.description = updates.description;
-      if (updates.marque !== undefined) updateData.marque = updates.marque;
-      if (updates.modele !== undefined) updateData.modele = updates.modele;
-      if (updates.prix_unitaire !== undefined) updateData.prix_unitaire = parseFloat(updates.prix_unitaire || updates.prixUnitaire);
+      if (updates.quantity !== undefined) updateData.quantity = parseInt(updates.quantity);
+      if (updates.article !== undefined) updateData.article = parseInt(updates.article);
 
       const params = {
         records: [updateData]
@@ -176,8 +150,8 @@ async update(id, updates) {
         return successfulUpdates.length > 0 ? successfulUpdates[0].data : null;
       }
     } catch (error) {
-      console.error("Error updating article:", error);
-      toast.error("Erreur lors de la mise à jour de l'article");
+      console.error("Error updating stock:", error);
+      toast.error("Erreur lors de la mise à jour du stock");
       return null;
     }
   }
@@ -213,41 +187,11 @@ async update(id, updates) {
         return successfulDeletions.length === ids.length;
       }
     } catch (error) {
-      console.error("Error deleting articles:", error);
-      toast.error("Erreur lors de la suppression des articles");
+      console.error("Error deleting stock:", error);
+      toast.error("Erreur lors de la suppression du stock");
       return false;
-}
-  }
-
-  async getLowStock() {
-    try {
-      const articles = await this.getAll();
-      return articles.filter(article => 
-        article.quantite_disponible <= article.seuil_alerte
-      );
-    } catch (error) {
-      console.error("Error fetching low stock articles:", error);
-      return [];
-    }
-  }
-
-  async updateStock(articleId, quantityChange) {
-    try {
-      const article = await this.getById(articleId);
-      if (!article) {
-        throw new Error('Article not found');
-      }
-
-      const newQuantity = Math.max(0, article.quantite_disponible + quantityChange);
-      
-      return this.update(articleId, {
-        quantite_disponible: newQuantity
-      });
-    } catch (error) {
-      console.error("Error updating stock:", error);
-      throw error;
     }
   }
 }
 
-export default new ArticleService();
+export default new StockService();

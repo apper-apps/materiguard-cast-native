@@ -1,10 +1,15 @@
-import { Navigate, Outlet } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
-import { useContext } from "react";
+import { Navigate, Outlet, Routes, Route } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import React, { useContext } from "react";
 import { AuthContext } from "../../App";
-import React from "react";
-import Sidebar from "@/components/organisms/Sidebar";
 import ApperIcon from "@/components/ApperIcon";
+import Sidebar from "@/components/organisms/Sidebar";
+import Dashboard from "@/components/pages/Dashboard";
+import Remises from "@/components/pages/Remises";
+import Stock from "@/components/pages/Stock";
+import Emprunts from "@/components/pages/Emprunts";
+import Historique from "@/components/pages/Historique";
+import MonCompte from "@/components/pages/MonCompte";
 
 const Layout = () => {
   const { user, isAuthenticated } = useSelector((state) => state.user);
@@ -13,12 +18,11 @@ const Layout = () => {
   const handleLogout = () => {
     logout();
   };
-
-  if (!isAuthenticated) {
+if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
 
-  return (
+return (
     <div className="flex h-screen bg-gray-50">
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
@@ -27,7 +31,7 @@ const Layout = () => {
             <span className="text-sm text-gray-600">Connecté en tant que:</span>
             <span className="font-medium text-gray-900">{user?.firstName} {user?.lastName}</span>
             <span className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">
-              Utilisateur
+              {user?.role || 'Utilisateur'}
             </span>
           </div>
           <button
@@ -39,11 +43,18 @@ const Layout = () => {
           </button>
         </div>
         <main className="flex-1 overflow-auto">
-          <Outlet />
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/remises" element={<Remises />} />
+            <Route path="/stock" element={<Stock />} />
+            <Route path="/emprunts" element={<Emprunts />} />
+            <Route path="/historique" element={<Historique />} />
+            <Route path="/mon-compte" element={<MonCompte />} />
+          </Routes>
         </main>
       </div>
     </div>
   );
 };
-
 export default Layout;

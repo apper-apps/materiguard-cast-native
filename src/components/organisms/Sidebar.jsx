@@ -5,11 +5,12 @@ import ApperIcon from '@/components/ApperIcon';
 const Sidebar = () => {
   const { user } = useAuth();
 const allNavItems = [
-    { path: '/', icon: 'LayoutDashboard', label: 'Dashboard', roles: ['Administrator', 'Manager', 'User'] },
+{ path: '/', icon: 'LayoutDashboard', label: 'Dashboard', roles: ['Administrator', 'Manager', 'User'] },
     { path: '/remises', icon: 'FileText', label: 'Remises', roles: ['Administrator', 'Manager', 'User'] },
     { path: '/stock', icon: 'Package', label: 'Stock', roles: ['Administrator', 'Manager', 'User'] },
     { path: '/emprunts', icon: 'Calendar', label: 'Emprunts', roles: ['Administrator', 'Manager', 'User'] },
-    { path: '/historique', icon: 'History', label: 'Historique', roles: ['Administrator', 'Manager', 'User'] }
+    { path: '/historique', icon: 'History', label: 'Historique', roles: ['Administrator', 'Manager', 'User'] },
+    { path: '/mon-compte', icon: 'User', label: 'Mon Compte', roles: ['Administrator', 'Manager', 'User'] }
 ];
 
   const navItems = user?.role ? allNavItems.filter(item => item.roles.includes(user.role)) : allNavItems;

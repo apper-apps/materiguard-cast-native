@@ -37,7 +37,7 @@ const DashboardStats = () => {
 e.status === 'En cours' && new Date(e.date_retour_prevue) < now
       );
       const remisesActives = remises.filter(r => r.status === 'Actif');
-      const articlesStockFaible = articles.filter(a => 
+const articlesStockFaible = articles.filter(a => 
         a.quantite_disponible <= a.seuil_alerte
       );
       const articlesDisponibles = articles.reduce((sum, article) => 

@@ -64,10 +64,11 @@ const getStatusBadge = (emprunt) => {
     try {
       await empruntService.markAsReturned(empruntId);
       
-      // Mettre à jour le stock
+// Mettre à jour le stock
       const emprunt = emprunts.find(e => e.Id === empruntId);
       if (emprunt) {
-        await articleService.updateStock(emprunt.articleId, emprunt.quantite);
+        const articleId = emprunt.article_id && typeof emprunt.article_id === 'object' ? emprunt.article_id.Id : emprunt.article_id;
+        await articleService.updateStock(articleId, emprunt.quantite);
       }
       
       toast.success('Retour enregistré avec succès');

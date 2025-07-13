@@ -26,7 +26,7 @@ useEffect(() => {
         setLoadingStock(true);
         const articles = await articleService.getAll();
         // Filter to only available items and format for dropdown
-        const availableItems = articles
+const availableItems = articles
 .filter(item => item.quantite_disponible > 0)
           .map(item => ({
             value: item.Id,
