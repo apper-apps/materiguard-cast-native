@@ -10,10 +10,9 @@ const allNavItems = [
     { path: '/stock', icon: 'Package', label: 'Stock', roles: ['Administrator', 'Manager', 'User'] },
     { path: '/emprunts', icon: 'Calendar', label: 'Emprunts', roles: ['Administrator', 'Manager', 'User'] },
     { path: '/historique', icon: 'History', label: 'Historique', roles: ['Administrator', 'Manager', 'User'] }
-  ];
+];
 
-  const navItems = allNavItems.filter(item => item.roles.includes(user.role));
-
+  const navItems = user?.role ? allNavItems.filter(item => item.roles.includes(user.role)) : allNavItems;
   return (
     <motion.div
       className="w-64 bg-white border-r border-gray-200 h-screen flex flex-col"
