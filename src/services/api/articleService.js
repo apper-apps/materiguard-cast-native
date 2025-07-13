@@ -5,12 +5,58 @@ class ArticleService {
     this.tableName = 'article';
   }
 
-  getApperClient() {
+getApperClient() {
     const { ApperClient } = window.ApperSDK;
     return new ApperClient({
       apperProjectId: import.meta.env.VITE_APPER_PROJECT_ID,
       apperPublicKey: import.meta.env.VITE_APPER_PUBLIC_KEY
     });
+  }
+
+  async getAll() {
+    try {
+      const apperClient = this.getApperClient();
+      
+      const params = {
+        fields: [
+          { field: { Name: "Name" } },
+          { field: { Name: "nom" } },
+          { field: { Name: "categorie" } },
+          { field: { Name: "quantite_total" } },
+          { field: { Name: "quantite_disponible" } },
+          { field: { Name: "seuil_alerte" } },
+          { field: { Name: "marque" } },
+          { field: { Name: "modele" } },
+          { field: { Name: "prix_unitaire" } },
+          { field: { Name: "description" } },
+          { field: { Name: "image" } }
+        ],
+        orderBy: [
+          {
+            fieldName: "nom",
+            sorttype: "ASC"
+          }
+        ],
+        pagingInfo: {
+          limit: 100,
+          offset: 0
+        }
+      };
+
+      const response = await apperClient.fetchRecords("article", params);
+
+      if (!response.success) {
+        console.error(response.message);
+        toast.error(response.message);
+        return [];
+      }
+
+      return response.data || [];
+    } catch (error) {
+      console.error("Error fetching articles:", error);
+      toast.error("Erreur lors du chargement des articles");
+      throw error;
+    }
   }
 
   async getAll() {
